@@ -21,22 +21,26 @@ public:
   reference operator*() {return (*vec)[pos];}
   
   // Standard boilerplate implementations for ++, --, + and -
-  index_iterator& operator++()                         {++pos; return *this;}
-  index_iterator& operator--()                         {--pos; return *this;}
-
-  index_iterator& operator+=(difference_type i)        {pos += i; return *this;}
-  index_iterator& operator-=(difference_type i)        {pos -= i; return *this;}
-
+  
+  #define PREFIX(CODE) {CODE; return *this;}
+  index_iterator& operator++()                         PREFIX((++pos))
+  index_iterator& operator--()                         PREFIX((--pos))
+  index_iterator& operator+=(difference_type i)        PREFIX((pos += i))
+  index_iterator& operator-=(difference_type i)        PREFIX((pos -= i))
+  #undef PREFIX
+    
   index_iterator operator++(int)                       {index_iterator tmp(*this); ++pos; return tmp;}
   index_iterator operator--(int)                       {index_iterator tmp(*this); --pos; return tmp;}
   
   index_iterator operator+(difference_type i)          {return index_iterator(vec, pos+i);}
   index_iterator operator-(difference_type i)          {return index_iterator(vec, pos-i);}
-  
-  difference_type operator-(const index_iterator& rhs) {return pos - rhs.pos;}
-  bool operator<(const index_iterator& rhs)            {return pos < rhs.pos;}
-  bool operator==(const index_iterator& rhs)           {return pos == rhs.pos;}
-  bool operator!=(const index_iterator& rhs)           {return pos != rhs.pos;}
+ 
+  #define BIN_OP(OP) operator OP (const index_iterator& rhs) {return pos OP rhs.pos;}
+  difference_type BIN_OP(-)
+  bool            BIN_OP(<)
+  bool            BIN_OP(!=)
+  bool            BIN_OP(==)
+  #undef BIN_OP
 
 };
 
