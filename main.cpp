@@ -7,16 +7,28 @@
 // function timer
 #include "timer/Timer.h"
 
-#include "viter/viter.hpp"
+#include "index_iterator/index_iterator.hpp"
 
 
-typedef std::uniform_int_distribution<mt19937::result_type> Dist;
+typedef std::uniform_int_distribution<std::mt19937::result_type> Dist;
 
-void test1()
+void dump_vec(std::vector<int> &x)
 {
-  std::cout << "Inserting 10 elements" << std::endl;
+  std::copy(begin(x), end(x), std::ostream_iterator<int>(std::cout, ","));
+  std::cout << '\n';
+}
+
+template<class V> void dump_index_iterator(V &v)
+{
+  std::cout << v.vec << '\n';
+  std::cout << v.pos << "\n\n";
+}
+
+void test_basic()
+{
+  std::cout << "Inserting 10 elements" << '\n';
   
-  vector<int> x;
+  std::vector<int> x;
   const int N = 10;
   for(int i = 0; i < N; ++i)
   {
@@ -24,22 +36,18 @@ void test1()
   }
   
   std::copy(vibegin(x), viend(x), std::ostream_iterator<int>(std::cout, ","));
-  std::cout << std::endl;
+  std::cout << '\n';
   auto vii = vibegin(x) + 5;
-  std::cout << "element at index 5: " << *vii << std::endl;
+  std::cout << "element at index 5: " << *vii << '\n';
   
-  std::cout << "Inserting 10 more" << std::endl;
+  std::cout << "Inserting 10 more" << '\n';
   for(int i = N; i < N*2; ++i)
   {
     x.push_back(i);
   }
   
-  std::copy(vibegin(x), viend(x), std::ostream_iterator<int>(std::cout, ","));
-  std::cout << std::endl;
-  std::cout << "element at index 5: " << *vii << std::endl;
-  
-  
-  std::cout << "Inserting 10 elements" << std::endl;
+  dump_vec(x);
+  std::cout << "element at index 5: " << *vii << "\n\n";
 }
 
 
@@ -47,11 +55,13 @@ void test_sort()
 {
   // Generate zillion random ints 
   const size_t N = 100'000'000;
+  
+  std::cout << "Generating " << N << " random elements\n";
   std::random_device dev;
   std::mt19937 rng(dev());
-  Dist dist(0, 10000);
+  Dist dist(0, N);
   
-  vector<int> x1, x2;
+  std::vector<int> x1, x2;
   x1.reserve(N);
   x2.reserve(N);
 
@@ -63,21 +73,24 @@ void test_sort()
   }
   
   {
-    Timer t("Sort with normal iterator");
-    std::sort(begin(x1), end(x1));
-    std::cout << x1[N/2] << std::endl;
+    Timer t("Sort iterator");
+    std::cout << "Sort with normal iterator\n";
+    std::sort(std::begin(x1), std::end(x1));
   }  
   
   {
-    Timer t("Sort with viter iterator");
+    Timer t("Sort index_iter");
+    std::cout << "Sort with index_iterator\n";
     std::sort(vibegin(x2), viend(x2));
-    std::cout << x2[N/2] << std::endl;
+    std::cout << (std::is_sorted(std::begin(x2), std::end(x2)) ? "Success" : "Fail") << "\n\n";
   }
 }
 
 
 int main()
 {
-  test();
+  test_basic();
   test_sort();
+  
+  Timer::dump();
 }
