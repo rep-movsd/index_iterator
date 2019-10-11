@@ -8,7 +8,7 @@ This iterator uses integer indices instead - so as long as your iterator points 
 
 To use this iterator class, simply include the requisite header and use the vibegin() and viend() global functions instead of begin() and end()
 
-    #include "index_iter/index_iter.h"
+    #include "index_iterator/index_iterator.hpp"
 
     void fn(std::vector<int> v)
     {
